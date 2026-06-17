@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-
-const INITIAL_COUNT = 0;
+import { useCallback, useEffect, useState } from "react";
 
 const sleep = (ms: number = 0) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -12,67 +10,60 @@ interface CounterGateway {
   decrementCount: () => Promise<number>;
 }
 
-// in-memory gateway unit
-let inMemoryCount = 5;
-const inMemoryCounterGateway: CounterGateway = {
-  getCount: async () => {
-    await sleep(500);
-    return inMemoryCount;
-  },
-  incrementCount: async () => {
-    await sleep(500);
-    inMemoryCount += 1;
-    return inMemoryCount;
-  },
-  decrementCount: async () => {
-    await sleep(500);
-    inMemoryCount -= 1;
-    return inMemoryCount;
-  },
-};
+// in-memory state
+let inMemoryStorage = 5;
 
-// remote gateway unit
-const remoteCounterGateway: CounterGateway = {
-  getCount: async () => {
+function App() {
+  // entities unit
+  const [count, setCount] = useState<number>(0);
+
+  // gateway unit
+  const getCount: CounterGateway["getCount"] = useCallback(async () => {
+    if (import.meta.env.DEV) {
+      await sleep(500);
+      return inMemoryStorage;
+    }
     const response = await fetch("/api/counter");
     if (!response.ok) {
       throw new Error("Failed to fetch count");
     }
     const data = await response.json();
     return data.value;
-  },
-  incrementCount: async () => {
-    const response = await fetch("/api/counter/increment", { method: "POST" });
-    if (!response.ok) {
-      throw new Error("Failed to increment count");
-    }
-    const data = await response.json();
-    return data.value;
-  },
-  decrementCount: async () => {
-    const response = await fetch("/api/counter/decrement", { method: "POST" });
-    if (!response.ok) {
-      throw new Error("Failed to decrement count");
-    }
-    const data = await response.json();
-    return data.value;
-  },
-};
+  }, []);
 
-// gateway factory
-const useCounterGateway = (): CounterGateway => {
-  if (import.meta.env.DEV) {
-    return inMemoryCounterGateway;
-  }
-  return remoteCounterGateway;
-};
+  const incrementCount: CounterGateway["incrementCount"] =
+    useCallback(async () => {
+      if (import.meta.env.DEV) {
+        await sleep(500);
+        inMemoryStorage += 1;
+        return inMemoryStorage;
+      }
+      const response = await fetch("/api/counter/increment", {
+        method: "POST",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to increment count");
+      }
+      const data = await response.json();
+      return data.value;
+    }, []);
 
-function App() {
-  // entities unit
-  const [count, setCount] = useState<number>(INITIAL_COUNT);
-
-  // gateway unit
-  const gateway = useCounterGateway();
+  const decrementCount: CounterGateway["decrementCount"] =
+    useCallback(async () => {
+      if (import.meta.env.DEV) {
+        await sleep(500);
+        inMemoryStorage -= 1;
+        return inMemoryStorage;
+      }
+      const response = await fetch("/api/counter/decrement", {
+        method: "POST",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to decrement count");
+      }
+      const data = await response.json();
+      return data.value;
+    }, []);
 
   // presenter unit
   const countValue = count;
@@ -81,15 +72,15 @@ function App() {
 
   // NOTE: controller unit
   const onIncrementButtonClick = async (): Promise<void> => {
-    const remoteCount = await gateway.incrementCount();
+    const remoteCount = await incrementCount();
     setCount(remoteCount);
   };
   const onDecrementButtonClick = async (): Promise<void> => {
-    const remoteCount = await gateway.decrementCount();
+    const remoteCount = await decrementCount();
     setCount(remoteCount);
   };
   const onAppMount = async (): Promise<void> => {
-    const remoteCount = await gateway.getCount();
+    const remoteCount = await getCount();
     setCount(remoteCount);
   };
 
