@@ -29,14 +29,12 @@ npm run dev
 The table below shows how each unit from the Clean Reactive Architecture diagram
 maps to `App.tsx`.
 
-| Architectural unit     | Implementation                                                                                 |
-| ---------------------- | ---------------------------------------------------------------------------------------------- |
-| Gateway interface      | `CounterGateway` interface                                                                     |
-| Gateway implementation | `getCount`, `incrementCount`, `decrementCount` (`useCallback`, typed against `CounterGateway`) |
-| Entities               | `count` (`useState`)                                                                           |
-| Presenter              | `countValue`, `countStatus`                                                                    |
-| Controller             | `onIncrementButtonClick`, `onDecrementButtonClick`, `onAppMount`                               |
-| User interface         | JSX returned from `App`                                                                        |
+| Architectural unit | Implementation                                                   |
+| ------------------ | ---------------------------------------------------------------- |
+| Entities           | `count` (`useState`)                                             |
+| Presenter          | `countValue`, `countStatus`                                      |
+| Controller         | `onIncrementButtonClick`, `onDecrementButtonClick`, `onAppMount` |
+| User interface     | JSX returned from `App`                                          |
 
 ## Tech stack
 

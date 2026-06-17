@@ -1,43 +1,30 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const sleep = (ms: number = 0) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-// gateway interface
-interface CounterGateway {
-  getCount: () => Promise<number>;
-  incrementCount: () => Promise<number>;
-  decrementCount: () => Promise<number>;
-}
-
-// in-memory state
 let inMemoryStorage = 5;
 
 function App() {
   // entities unit
   const [count, setCount] = useState<number>(0);
 
-  // gateway unit
-  const getCount: CounterGateway["getCount"] = useCallback(async () => {
-    if (import.meta.env.DEV) {
-      await sleep(500);
-      return inMemoryStorage;
-    }
-    const response = await fetch("/api/counter");
-    if (!response.ok) {
-      throw new Error("Failed to fetch count");
-    }
-    const data = await response.json();
-    return data.value;
-  }, []);
+  // presenter unit
+  const countValue = count;
+  const countStatus =
+    count === 0 ? "Zero" : count > 0 ? "Positive" : "Negative";
 
-  const incrementCount: CounterGateway["incrementCount"] =
-    useCallback(async () => {
-      if (import.meta.env.DEV) {
-        await sleep(500);
-        inMemoryStorage += 1;
-        return inMemoryStorage;
-      }
+  // controller unit
+  const onIncrementButtonClick = async (): Promise<void> => {
+    // use case unit
+    let newCount: number; // gateway interface
+    if (import.meta.env.DEV) {
+      // in-memory gateway unit
+      await sleep(500);
+      inMemoryStorage += 1;
+      newCount = inMemoryStorage;
+    } else {
+      // remote gateway unit
       const response = await fetch("/api/counter/increment", {
         method: "POST",
       });
@@ -45,16 +32,22 @@ function App() {
         throw new Error("Failed to increment count");
       }
       const data = await response.json();
-      return data.value;
-    }, []);
+      newCount = data.value;
+    }
+    // transaction unit
+    setCount(newCount);
+  };
 
-  const decrementCount: CounterGateway["decrementCount"] =
-    useCallback(async () => {
-      if (import.meta.env.DEV) {
-        await sleep(500);
-        inMemoryStorage -= 1;
-        return inMemoryStorage;
-      }
+  const onDecrementButtonClick = async (): Promise<void> => {
+    // use case unit
+    let newCount: number; // gateway interface
+    if (import.meta.env.DEV) {
+      // in-memory gateway unit
+      await sleep(500);
+      inMemoryStorage -= 1;
+      newCount = inMemoryStorage;
+    } else {
+      // remote gateway unit
       const response = await fetch("/api/counter/decrement", {
         method: "POST",
       });
@@ -62,32 +55,35 @@ function App() {
         throw new Error("Failed to decrement count");
       }
       const data = await response.json();
-      return data.value;
-    }, []);
-
-  // presenter unit
-  const countValue = count;
-  const countStatus =
-    count === 0 ? "Zero" : count > 0 ? "Positive" : "Negative";
-
-  // NOTE: controller unit
-  const onIncrementButtonClick = async (): Promise<void> => {
-    const remoteCount = await incrementCount();
-    setCount(remoteCount);
+      newCount = data.value;
+    }
+    // transaction unit
+    setCount(newCount);
   };
-  const onDecrementButtonClick = async (): Promise<void> => {
-    const remoteCount = await decrementCount();
-    setCount(remoteCount);
-  };
+
   const onAppMount = async (): Promise<void> => {
-    const remoteCount = await getCount();
-    setCount(remoteCount);
+    // use case unit
+    let newCount: number; // gateway interface
+    if (import.meta.env.DEV) {
+      // in-memory gateway unit
+      await sleep(500);
+      newCount = inMemoryStorage;
+    } else {
+      // remote gateway unit
+      const response = await fetch("/api/counter");
+      if (!response.ok) {
+        throw new Error("Failed to fetch count");
+      }
+      const data = await response.json();
+      newCount = data.value;
+    }
+    // transaction unit
+    setCount(newCount);
   };
 
   // view unit lifecycle hook
   useEffect(() => {
     onAppMount();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // view unit
