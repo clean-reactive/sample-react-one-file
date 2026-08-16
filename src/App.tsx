@@ -5,26 +5,36 @@ const sleep = (ms: number = 0) =>
 
 let inMemoryStorage = 5;
 
-function App() {
-  // entities unit
-  const [count, setCount] = useState<number>(0);
+// NOTE(harunou): the #region comments below mark where each architectural unit
+// (responsibility) of Clean Reactive Architecture lives within this single
+// component. They are here purely for demonstration and are not necessary in a
+// real-world application.
 
-  // presenter unit
+function App() {
+  //#region entities unit
+  const [count, setCount] = useState<number>(0);
+  //#endregion entities unit
+
+  //#region presenter unit
   const countValue = count;
   const countStatus =
     count === 0 ? "Zero" : count > 0 ? "Positive" : "Negative";
+  //#endregion presenter unit
 
-  // controller unit
+  //#region controller unit
   const onIncrementButtonClick = async (): Promise<void> => {
-    // use case unit
-    let newCount: number; // gateway interface
+    //#region use case unit
+    //#region gateway interface
+    let newCount: number;
+    //#endregion gateway interface
     if (import.meta.env.DEV) {
-      // in-memory gateway unit
+      //#region in-memory gateway unit
       await sleep(500);
       inMemoryStorage += 1;
       newCount = inMemoryStorage;
+      //#endregion in-memory gateway unit
     } else {
-      // remote gateway unit
+      //#region remote gateway unit
       const response = await fetch("/api/counter/increment", {
         method: "POST",
       });
@@ -33,21 +43,27 @@ function App() {
       }
       const data = await response.json();
       newCount = data.value;
+      //#endregion remote gateway unit
     }
-    // transaction unit
+    //#region transaction unit
     setCount(newCount);
+    //#endregion transaction unit
+    //#endregion use case unit
   };
 
   const onDecrementButtonClick = async (): Promise<void> => {
-    // use case unit
-    let newCount: number; // gateway interface
+    //#region use case unit
+    //#region gateway interface
+    let newCount: number;
+    //#endregion gateway interface
     if (import.meta.env.DEV) {
-      // in-memory gateway unit
+      //#region in-memory gateway unit
       await sleep(500);
       inMemoryStorage -= 1;
       newCount = inMemoryStorage;
+      //#endregion in-memory gateway unit
     } else {
-      // remote gateway unit
+      //#region remote gateway unit
       const response = await fetch("/api/counter/decrement", {
         method: "POST",
       });
@@ -56,37 +72,48 @@ function App() {
       }
       const data = await response.json();
       newCount = data.value;
+      //#endregion remote gateway unit
     }
-    // transaction unit
+    //#region transaction unit
     setCount(newCount);
+    //#endregion transaction unit
+    //#endregion use case unit
   };
 
   const onAppMount = async (): Promise<void> => {
-    // use case unit
-    let newCount: number; // gateway interface
+    //#region use case unit
+    //#region gateway interface
+    let newCount: number;
+    //#endregion gateway interface
     if (import.meta.env.DEV) {
-      // in-memory gateway unit
+      //#region in-memory gateway unit
       await sleep(500);
       newCount = inMemoryStorage;
+      //#endregion in-memory gateway unit
     } else {
-      // remote gateway unit
+      //#region remote gateway unit
       const response = await fetch("/api/counter");
       if (!response.ok) {
         throw new Error("Failed to fetch count");
       }
       const data = await response.json();
       newCount = data.value;
+      //#endregion remote gateway unit
     }
-    // transaction unit
+    //#region transaction unit
     setCount(newCount);
+    //#endregion transaction unit
+    //#endregion use case unit
   };
+  //#endregion controller unit
 
-  // view unit lifecycle hook
+  //#region view unit lifecycle hook
   useEffect(() => {
     onAppMount();
   }, []);
+  //#endregion view unit lifecycle hook
 
-  // view unit
+  //#region view unit
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-lg p-10 text-center max-w-sm w-full">
@@ -124,6 +151,7 @@ function App() {
       </div>
     </div>
   );
+  //#endregion view unit
 }
 
 export default App;
