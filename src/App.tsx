@@ -3,7 +3,24 @@ import { useEffect, useState } from "react";
 const sleep = (ms: number = 0) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-let inMemoryStorage = 5;
+const inMemoryCounterResource = (() => {
+  let count = 5;
+
+  return {
+    decrement: async (): Promise<void> => {
+      await sleep(500);
+      count -= 1;
+    },
+    increment: async (): Promise<void> => {
+      await sleep(500);
+      count += 1;
+    },
+    getCount: async (): Promise<number> => {
+      await sleep(500);
+      return count;
+    },
+  };
+})();
 
 // NOTE(harunou): the #region comments below mark where each architectural unit
 // (responsibility) of Clean Reactive Architecture lives within this single
@@ -29,9 +46,8 @@ function App() {
     //#endregion gateway interface
     if (import.meta.env.DEV) {
       //#region in-memory gateway unit
-      await sleep(500);
-      inMemoryStorage += 1;
-      newCount = inMemoryStorage;
+      await inMemoryCounterResource.increment();
+      newCount = await inMemoryCounterResource.getCount();
       //#endregion in-memory gateway unit
     } else {
       //#region remote gateway unit
@@ -58,9 +74,8 @@ function App() {
     //#endregion gateway interface
     if (import.meta.env.DEV) {
       //#region in-memory gateway unit
-      await sleep(500);
-      inMemoryStorage -= 1;
-      newCount = inMemoryStorage;
+      await inMemoryCounterResource.decrement();
+      newCount = await inMemoryCounterResource.getCount();
       //#endregion in-memory gateway unit
     } else {
       //#region remote gateway unit
@@ -87,8 +102,7 @@ function App() {
     //#endregion gateway interface
     if (import.meta.env.DEV) {
       //#region in-memory gateway unit
-      await sleep(500);
-      newCount = inMemoryStorage;
+      newCount = await inMemoryCounterResource.getCount();
       //#endregion in-memory gateway unit
     } else {
       //#region remote gateway unit
