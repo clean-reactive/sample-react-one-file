@@ -4,8 +4,8 @@ A minimal sample that demonstrates [Clean Reactive
 Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md)
 implemented in a single React component.
 
-All architectural units — the in-memory resource, entities, presenter,
-controller, and user interface — live in
+All architectural units — the external resource, gateway, entities,
+transaction, use case, presenter, controller, and user interface — live in
 [`src/App.tsx`](./src/App.tsx) with inline comments identifying each unit. The
 intent is to show the architecture clearly, without the file structure of a full
 project getting in the way.
@@ -40,13 +40,17 @@ npm run dev
 The table below shows how each unit from the Clean Reactive Architecture diagram
 maps to `App.tsx`.
 
-| Architectural unit | Implementation                                                   |
-| ------------------ | ---------------------------------------------------------------- |
-| Gateway/resource   | `inMemoryCounterResource` (`increment`, `decrement`, `getCount`) |
-| Entities           | `count` (`useState`)                                             |
-| Presenter          | `countValue`, `countStatus`                                      |
-| Controller         | `onIncrementButtonClick`, `onDecrementButtonClick`, `onAppMount` |
-| User interface     | JSX returned from `App`                                          |
+| Architectural unit | Implementation                                                                   |
+| ------------------ | -------------------------------------------------------------------------------- |
+| External resource  | `inMemoryCounterResource` (`increment`, `decrement`, `getCount`), `/api/counter` |
+| Gateway            | in-memory and remote branches inside each use case                               |
+| Gateway interface  | `newCount: number` - the value every gateway returns                             |
+| Entities           | `count` (`useState`)                                                             |
+| Transaction        | `setCount(newCount)`                                                             |
+| Use case           | body of each controller handler                                                  |
+| Presenter          | `countValue`, `countStatus`                                                      |
+| Controller         | `onIncrementButtonClick`, `onDecrementButtonClick`, `onAppMount`                 |
+| User interface     | JSX returned from `App`                                                          |
 
 ## Key design decisions
 

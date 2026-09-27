@@ -121,13 +121,13 @@ function App() {
   };
   //#endregion controller unit
 
-  //#region view unit lifecycle hook
+  //#region user interface unit lifecycle hook
   useEffect(() => {
     onAppMount();
   }, []);
-  //#endregion view unit lifecycle hook
+  //#endregion user interface unit lifecycle hook
 
-  //#region view unit
+  //#region user interface unit
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-lg p-10 text-center max-w-sm w-full">
@@ -165,7 +165,7 @@ function App() {
       </div>
     </div>
   );
-  //#endregion view unit
+  //#endregion user interface unit
 }
 
 export default App;
