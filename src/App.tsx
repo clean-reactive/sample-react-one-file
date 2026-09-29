@@ -57,7 +57,11 @@ function App() {
       if (!response.ok) {
         throw new Error("Failed to increment count");
       }
-      const data = await response.json();
+      const countResponse = await fetch("/api/counter");
+      if (!countResponse.ok) {
+        throw new Error("Failed to fetch count");
+      }
+      const data = await countResponse.json();
       newCount = data.value;
       //#endregion remote gateway unit
     }
@@ -85,7 +89,11 @@ function App() {
       if (!response.ok) {
         throw new Error("Failed to decrement count");
       }
-      const data = await response.json();
+      const countResponse = await fetch("/api/counter");
+      if (!countResponse.ok) {
+        throw new Error("Failed to fetch count");
+      }
+      const data = await countResponse.json();
       newCount = data.value;
       //#endregion remote gateway unit
     }
