@@ -12,7 +12,7 @@ project getting in the way.
 
 > :bulb: **Reference implementation.** This sample keeps the architectural units in one React component so their responsibilities and boundaries are visible. This is a demonstration choice; the architecture does not require a one-file structure.
 
-> :bulb: **Multiple resources.** The inline gateway can work with two resource implementations. This demonstrates substituting resources behind the same gateway boundary; using multiple resources is for demonstration purposes, not an architecture requirement.
+> :bulb: **Demo storage.** The sample stores the counter in memory during development and calls a backend service at `/api/counter` in production builds. The in-memory value resets on page reload; the backend implementation is not included. These two gateway branches are for demonstration purposes, to show how the gateway can work with different resources.
 
 <details>
 <summary><b>Watch the demo</b></summary>
@@ -76,3 +76,9 @@ including the User Interface unit, which is implemented with JSX.
 
 - [Clean Reactive Architecture](https://github.com/clean-reactive/documentation/blob/main/docs/architecture.md)
 - [Development Methodology](https://github.com/clean-reactive/documentation/blob/main/docs/methodology.md)
+
+## License
+
+This repository is licensed under the [MIT License](./LICENSE).
+
+Third-party dependencies and assets retain their own licenses and notices.
